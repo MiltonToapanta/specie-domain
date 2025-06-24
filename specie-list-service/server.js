@@ -2,32 +2,56 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();  
-const Especie = require('./model/Especie'); 
+const Species = require('./model/Specie'); 
 
 const app = express();
 
-const mongoUri = process.env.MONGO_URI 
-const dbName = process.env.DB_NAME 
+// Connect to MongoDB using environment variables
+const mongoUri = process.env.MONGO_URI;
+const dbName = process.env.DB_NAME;
 
 mongoose.connect(`${mongoUri}/${dbName}`)
   .then(() => {
-    console.log(`Conectado a MongoDB en la base de datos: ${dbName}`);
+    console.log(`Connected to MongoDB database: ${dbName}`);
   })
   .catch((error) => {
-    console.error('Error al conectar a MongoDB:', error.message);
+    console.error('Error connecting to MongoDB:', error.message);
   });
 
-const PORT = process.env.PORT_LIST || 3000;  
+// Define port
+const PORT = process.env.PORT_LIST || 3000;
 
-app.get('/especie', async (req, res) => {
-  try {
-    const especies = await Especie.find(); 
-    res.json(especies); 
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los especies' });
-  }
+// SOAP Service definition
+const wsdl = `${__dirname}/species.wsdl`; 
+
+const soapService = {
+  SpeciesService: {
+    SpeciesServicePort: {
+      getAllSpecies: async (args) => {
+        try {
+          const species = await Species.find(); 
+          return { species: species };  
+        } catch (error) {
+          return { error: 'Error retrieving species' };
+        }
+      },
+    },
+  },
+};
+
+// Health check route
+app.get('/', (req, res) => {
+  res.send('Health check: Server is running');
 });
 
+// Start SOAP Server
+Server.createServer(soapService, wsdl, (server) => {
+  server.listen(8080, () => {
+    console.log('SOAP service running on port 8080');
+  });
+});
+
+// Start Express server
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Express server running on port ${PORT}`);
 });
