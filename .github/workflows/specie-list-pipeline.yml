@@ -46,8 +46,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_SPECIE_LIST }}:latest
             docker stop ${{ secrets.DOCKER_IMAGE_SPECIE_LIST }} || true
             docker rm ${{ secrets.DOCKER_IMAGE_SPECIE_LIST }} || true
-            docker run --restart always -e MONGODB_URL=${{ secrets.MONGODB_URL }} \
-                       -e MONGODB_DB_NAME=${{ secrets.MONGODB_DB_NAME }} \
-                       -e MONGODB_COLLECTION=${{ secrets.MONGODB_COLLECTION }} \
+            docker run --restart always -e MONGO_URI=${{ secrets.MONGO_URI }} \
+                       -e DB_NAME=${{ secrets.DB_NAME }} \
                        -d --name ${{ secrets.DOCKER_IMAGE_SPECIE_LIST }} \
                        -p ${{ secrets.PORT_LIST }}:${{ secrets.PORT_LIST }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_SPECIE_LIST }}:latest

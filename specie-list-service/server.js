@@ -17,7 +17,7 @@ mongoose.connect(`${mongoUri}/${dbName}`)
     console.error('Error al conectar a MongoDB:', error.message);
   });
 
-const PORT = process.env.PORT || 3000;  
+const PORT = process.env.PORT_LIST || 3000;  
 
 app.get('/especie', async (req, res) => {
   try {
