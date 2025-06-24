@@ -1,14 +1,10 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const { ApolloServer } = require('apollo-server-express');
 const { gql } = require('apollo-server-express');
 require('dotenv').config();
 
-const typeDefs = require('./graphql/schema/specieSchema');
-const resolvers = require('./graphql/resolvers/specieResolver');
-
-const app = express();
+const Specie = require('./model/Specie');
 
 // MongoDB connection
 const mongoUri = process.env.MONGO_URI;
@@ -22,11 +18,45 @@ mongoose.connect(`${mongoUri}/${dbName}`)
     console.error('Error connecting to MongoDB:', error.message);
   });
 
-// GraphQL server setup
+// GraphQL schema
+const typeDefs = gql`
+  # Root Query
+  type Query {
+    _: Boolean # Apollo Server expects a root query. This is just a placeholder.
+  }
+
+  type Specie {
+    id: ID!
+    name: String!
+    species: String!
+    description: String
+    photo_url: String
+  }
+
+  type Mutation {
+    addSpecie(name: String!, species: String!, description: String, photo_url: String): Specie
+  }
+`;
+
+// GraphQL resolvers
+const resolvers = {
+  Mutation: {
+    async addSpecie(_, { name, species, description, photo_url }) {
+      const newSpecie = new Specie({ name, species, description, photo_url });
+      await newSpecie.save();
+      return newSpecie;
+    },
+  },
+};
+
+// Initialize Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
+
+// Express app setup
+const app = express();
 
 // Asynchronous function to start the Apollo Server
 const startServer = async () => {
