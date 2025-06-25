@@ -31,18 +31,18 @@ const server = new ApolloServer({
 // Asynchronous function to start the Apollo Server
 const startServer = async () => {
   await server.start();  // Start the Apollo Server
-  server.applyMiddleware({ app });  // Apply Apollo middleware to Express
+  server.applyMiddleware({ app, path: '/species' });  // Set the custom GraphQL endpoint to '/species'
 
   // Healthcheck route
   app.get('/', (req, res) => {
-    res.send('Server is up and running!');
+    res.send('Species list microservice is up and running!');
   });
 
   // Start the Express server
   const PORT = process.env.PORT_LIST || 3000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`GraphQL endpoint: http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`GraphQL endpoint: http://localhost:${PORT}/species`);
   });
 };
 

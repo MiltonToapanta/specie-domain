@@ -34,30 +34,23 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    updateSpecie(id: ID!, name: String, species: String, description: String, photo_url: String): Specie
+    searchName(name: String!): [Specie]  # Nueva mutación para buscar especies por nombre
   }
 `;
 
 // GraphQL resolvers
 const resolvers = {
   Mutation: {
-    async updateSpecie(_, { id, name, species, description, photo_url }) {
-      // Buscar la especie por ID
-      const specie = await Specie.findById(id);
+    // Resolver para buscar especies por nombre
+    async searchName(_, { name }) {
+      // Buscar todas las especies cuyo nombre coincida parcialmente con el nombre proporcionado
+      const species = await Specie.find({ name: new RegExp(name, 'i') });  // Búsqueda insensible a mayúsculas
 
-      if (!specie) {
-        throw new Error('Specie not found');
+      if (species.length === 0) {
+        throw new Error('No species found with that name');
       }
 
-      // Actualizar los campos que se pasan en la mutación
-      if (name) specie.name = name;
-      if (species) specie.species = species;
-      if (description) specie.description = description;
-      if (photo_url) specie.photo_url = photo_url;
-
-      // Guardar la especie actualizada
-      await specie.save();
-      return specie;  // Devolver la especie actualizada
+      return species;  // Devolver las especies encontradas
     },
   },
 };
@@ -74,8 +67,7 @@ const app = express();
 // Asynchronous function to start the Apollo Server
 const startServer = async () => {
   await server.start();  // Start the Apollo Server
-  // Change the GraphQL endpoint to /species
-  server.applyMiddleware({ app, path: '/species' });  // Apply Apollo middleware to Express
+  server.applyMiddleware({ app, path: '/species' });  // Set the GraphQL endpoint to /species
 
   // Healthcheck route
   app.get('/', (req, res) => {
@@ -83,7 +75,7 @@ const startServer = async () => {
   });
 
   // Start the Express server
-  const PORT = process.env.PORT_UPDATE || 3000;
+  const PORT = process.env.PORT_SEARCH_NAME || 3000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`GraphQL endpoint: http://localhost:${PORT}/species`);
