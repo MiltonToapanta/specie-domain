@@ -34,31 +34,26 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    updateSpecie(id: ID!, name: String, species: String, description: String, photo_url: String): Specie
+    deleteSpecie(id: ID!): String  # Mutación para eliminar una especie
   }
 `;
 
 // GraphQL resolvers
 const resolvers = {
   Mutation: {
-    async updateSpecie(_, { id, name, species, description, photo_url }) {
-      // Buscar la especie por ID
+    // Resolver para eliminar una especie
+    async deleteSpecie(_, { id }) {
+      // Buscar la especie por ID y eliminarla
       const specie = await Specie.findById(id);
-
       if (!specie) {
         throw new Error('Specie not found');
       }
 
-      // Actualizar los campos que se pasan en la mutación
-      if (name) specie.name = name;
-      if (species) specie.species = species;
-      if (description) specie.description = description;
-      if (photo_url) specie.photo_url = photo_url;
+      // Eliminar la especie con findByIdAndDelete
+      await Specie.findByIdAndDelete(id);
 
-      // Guardar la especie actualizada
-      await specie.save();
-      return specie;  // Devolver la especie actualizada
-    },
+      return `Specie with ID ${id} has been deleted`;  // Respuesta de éxito
+    }
   },
 };
 
@@ -74,8 +69,7 @@ const app = express();
 // Asynchronous function to start the Apollo Server
 const startServer = async () => {
   await server.start();  // Start the Apollo Server
-  // Change the GraphQL endpoint to /species
-  server.applyMiddleware({ app, path: '/species' });  // Apply Apollo middleware to Express
+  server.applyMiddleware({ app, path: '/species' });  // Set the GraphQL endpoint to /species
 
   // Healthcheck route
   app.get('/', (req, res) => {
@@ -83,7 +77,7 @@ const startServer = async () => {
   });
 
   // Start the Express server
-  const PORT = process.env.PORT_UPDATE || 3000;
+  const PORT = process.env.PORT_DELETE || 3000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`GraphQL endpoint: http://localhost:${PORT}/species`);
