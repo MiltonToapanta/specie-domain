@@ -34,30 +34,25 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    updateSpecie(id: ID!, name: String, species: String, description: String, photo_url: String): Specie
+    addSpecie(name: String!, species: String!, description: String, photo_url: String): Specie
   }
 `;
 
 // GraphQL resolvers
 const resolvers = {
   Mutation: {
-    async updateSpecie(_, { id, name, species, description, photo_url }) {
-      // Buscar la especie por ID
-      const specie = await Specie.findById(id);
+    async addSpecie(_, { name, species, description, photo_url }) {
+      // Crear una nueva especie con los campos proporcionados
+      const newSpecie = new Specie({
+        name,
+        species,
+        description,
+        photo_url
+      });
 
-      if (!specie) {
-        throw new Error('Specie not found');
-      }
-
-      // Actualizar los campos que se pasan en la mutación
-      if (name) specie.name = name;
-      if (species) specie.species = species;
-      if (description) specie.description = description;
-      if (photo_url) specie.photo_url = photo_url;
-
-      // Guardar la especie actualizada
-      await specie.save();
-      return specie;  // Devolver la especie actualizada
+      // Guardar la nueva especie en la base de datos
+      await newSpecie.save();
+      return newSpecie;  // Devolver la nueva especie agregada
     },
   },
 };
@@ -79,11 +74,11 @@ const startServer = async () => {
 
   // Healthcheck route
   app.get('/', (req, res) => {
-    res.send('Server is up and running!');
+    res.send('Server ADD is up and running!');
   });
 
   // Start the Express server
-  const PORT = process.env.PORT_UPDATE || 3000;
+  const PORT = process.env.PORT_ADD || 3000;  // Usamos PORT_ADD aquí
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`GraphQL endpoint: http://localhost:${PORT}/species`);
