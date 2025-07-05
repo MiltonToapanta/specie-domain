@@ -3,13 +3,13 @@ name: Pipeline for Specie Add Microservice
 on:
   push:
     branches:
-      - QA
+      - Production
     paths:
       - 'specie-add-service/**'
       - '.github/workflows/specie-add-pipeline.yml'
   pull_request:
     branches: 
-      - QA
+      - Production
     paths:
       - 'specie-add-service/**'
       - '.github/workflows/specie-add-pipeline.yml'

@@ -3,13 +3,13 @@ name: Pipeline for Specie List Microservice
 on:
   push:
     branches:
-      - QA
+      - Production
     paths:
       - 'specie-list-service/**'
       - '.github/workflows/specie-list-pipeline.yml'
   pull_request:
     branches: 
-      - QA
+      - Production
     paths:
       - 'specie-list-service/**'
       - '.github/workflows/specie-list-pipeline.yml'

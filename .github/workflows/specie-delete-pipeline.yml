@@ -3,13 +3,13 @@ name: Pipeline for Specie Delete Microservice
 on:
   push:
     branches:
-      - QA
+      - Production
     paths:
       - 'specie-delete-service/**'
       - '.github/workflows/specie-delete-pipeline.yml'
   pull_request:
     branches: 
-      - QA
+      - Production
     paths:
       - 'specie-delete-service/**'
       - '.github/workflows/specie-delete-pipeline.yml'
